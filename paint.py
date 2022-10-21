@@ -35,7 +35,7 @@ def paint(e):
     lastx, lasty = x, y
 
 model = ts.keras.models.load_model('./dr.h5')
-# model = model.load_weights('./drWeight.h5')
+model.load_weights('./drWeight.h5')
 root = Tk()
 lastx, lasty = None, None
 cv = Canvas(root, width=280, height=280, bg='white')
