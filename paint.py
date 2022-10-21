@@ -2,14 +2,25 @@ from tkinter import *
 import PIL
 from PIL import Image, ImageDraw
 import cv2
+import numpy as np
+import tensorflow as ts
+import time
 
-def save():
+from doodle_recognition import *
+
+def save(model):
     global image_number
     filename = f'image_0.png'
     image1.save(filename)
     img = cv2.imread('./image_0.png', cv2.IMREAD_UNCHANGED)
     resized = cv2.resize(img, (28, 28), interpolation = cv2.INTER_AREA)
+    resized = (255-resized)
     cv2.imwrite("rescaled.png", resized)
+    time.sleep(1)
+    im = Image.open('rescaled.png')
+    numpy_data = np.asarray(im.convert('1'))
+    recognize_img(numpy_data, model)
+
 
 def activate_paint(e):
     global lastx, lasty
@@ -23,6 +34,8 @@ def paint(e):
     draw.line((lastx, lasty, x, y), fill='black', width=12)
     lastx, lasty = x, y
 
+model = ts.keras.models.load_model('./dr.h5')
+# model = model.load_weights('./drWeight.h5')
 root = Tk()
 lastx, lasty = None, None
 cv = Canvas(root, width=280, height=280, bg='white')
@@ -32,7 +45,7 @@ draw = ImageDraw.Draw(image1)
 cv.bind('<1>', activate_paint)
 cv.pack(expand=YES, fill=BOTH)
 
-btn_save = Button(text="save", command=save)
+btn_save = Button(text="save", command= lambda: save(model))
 btn_save.pack()
 
 root.mainloop()

@@ -7,7 +7,8 @@ from random import randint
 import os
 
 os.system('cls' if os.name == 'nt' else 'clear')
-
+c_names = ["CatImages", "GuitareImages"]
+class_names = []
 ## data loading
 
 def process_data(vfold_ratio=0.2, max_items_per_class=4000):
@@ -15,7 +16,6 @@ def process_data(vfold_ratio=0.2, max_items_per_class=4000):
 
     x_data = np.empty([0, 784])
     y_labels = np.empty([0])
-    class_names = []
 
     for idx, file in enumerate(all_files):
         data = np.load(file)
@@ -46,74 +46,78 @@ def process_data(vfold_ratio=0.2, max_items_per_class=4000):
 
     return data_train, labels_train, data_test, labels_test, class_names
 
-x_train, y_train, x_test, y_test, class_names = process_data()
-num_classes = len(class_names)
-image_size = 28
+def doodle_recognition():
+    x_train, y_train, x_test, y_test, class_names = process_data()
+    num_classes = len(class_names)
+    image_size = 28
 
-## show some data
-
-
-# plt.figure(figsize=(10, 10))
-
-# for i in range(54):
-#     ax = plt.subplot(9, 6, i + 1)
-#     plt.imshow(x_train[i].reshape(28, 28))
-#     plt.title(int(y_train[i]))
-#     plt.axis("off")
-# plt.show()
+    ## show some data
 
 
+    # plt.figure(figsize=(10, 10))
 
-## pre-processing
-
-x_train = x_train.reshape(x_train.shape[0], image_size, image_size, 1).astype('float32')
-x_test = x_test.reshape(x_test.shape[0], image_size, image_size, 1).astype('float32')
-
-x_train /= 255.0
-x_test /= 255.0
-
-y_train = keras.utils.to_categorical(y_train, num_classes)
-y_test = keras.utils.to_categorical(y_test, num_classes)
+    # for i in range(54):
+    #     ax = plt.subplot(9, 6, i + 1)
+    #     plt.imshow(x_train[i].reshape(28, 28))
+    #     plt.title(int(y_train[i]))
+    #     plt.axis("off")
+    # plt.show()
 
 
 
+    ## pre-processing
 
-# Define model
-model = keras.Sequential()
-model.add(layers.Convolution2D(16, (3, 3),
-                        padding='same',
-                        input_shape=x_train.shape[1:], activation='relu'))
-model.add(layers.MaxPooling2D(pool_size=(2, 2)))
-model.add(layers.Convolution2D(32, (3, 3), padding='same', activation= 'relu'))
-model.add(layers.MaxPooling2D(pool_size=(2, 2)))
-model.add(layers.Convolution2D(64, (3, 3), padding='same', activation= 'relu'))
-model.add(layers.MaxPooling2D(pool_size =(2,2)))
-model.add(layers.Flatten())
-model.add(layers.Dense(128, activation='relu'))
-model.add(layers.Dense(2, activation='softmax')) 
+    x_train = x_train.reshape(x_train.shape[0], image_size, image_size, 1).astype('float32')
+    print("-----", x_train.shape[0])
+    x_test = x_test.reshape(x_test.shape[0], image_size, image_size, 1).astype('float32')
 
-# Train model
-adam = tf.optimizers.Adam()
-model.compile(loss='categorical_crossentropy',
-              optimizer=adam,
-              metrics=['top_k_categorical_accuracy'])
-print(model.summary())
+    x_train /= 255.0
+    x_test /= 255.0
 
-model.fit(x = x_train, y = y_train, validation_split=0.1, batch_size = 256, verbose=2, epochs=5)
+    y_train = keras.utils.to_categorical(y_train, num_classes)
+    y_test = keras.utils.to_categorical(y_test, num_classes)
+
+
+    # Define model
+    model = keras.Sequential()
+    model.add(layers.Convolution2D(16, (3, 3),
+                            padding='same',
+                            input_shape=x_train.shape[1:], activation='relu'))
+    model.add(layers.MaxPooling2D(pool_size=(2, 2)))
+    model.add(layers.Convolution2D(32, (3, 3), padding='same', activation= 'relu'))
+    model.add(layers.MaxPooling2D(pool_size=(2, 2)))
+    model.add(layers.Convolution2D(64, (3, 3), padding='same', activation= 'relu'))
+    model.add(layers.MaxPooling2D(pool_size =(2,2)))
+    model.add(layers.Flatten())
+    model.add(layers.Dense(128, activation='relu'))
+    model.add(layers.Dense(2, activation='softmax')) 
+
+    ## Train model
+    adam = tf.optimizers.Adam()
+    model.compile(loss='categorical_crossentropy',
+                optimizer=adam,
+                metrics=['top_k_categorical_accuracy'])
+    print(model.summary())
+
+    model.fit(x = x_train, y = y_train, validation_split=0.1, batch_size = 256, verbose=2, epochs=5)
+    model.save('dr.h5')
+    model.save_weights('drWeight.h5')
+    return model
 
 ## try model
-score = model.evaluate(x_test, y_test, verbose=0)
-print('Test accuracy: {:0.2f}%'.format(score[1] * 100))
+# score = model.evaluate(x_test, y_test, verbose=0)
+# print('Test accuracy: {:0.2f}%'.format(score[1] * 100))
 
-## test -- pas compris
-idx = randint(0, len(x_test))
-img = x_test[idx]
-plt.imshow(img.squeeze())
+def recognize_img(im, model):
+    # idx = randint(0, len(x_test))
+    # img = x_test[idx]
+    # plt.imshow(im.squeeze())
+    # plt.show()
 
-plt.show()
+    pred = model.predict(np.expand_dims(im, axis=0))[0]
+    ind = (-pred).argsort()[:5]
+    latex = [c_names[x] for x in ind]
+    print(latex)
 
-pred = model.predict(np.expand_dims(img, axis=0))[0]
-ind = (-pred).argsort()[:5]
-latex = [class_names[x] for x in ind]
-print(latex)
-
+if __name__ == "__main__":
+    doodle_recognition()
