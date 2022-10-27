@@ -3,17 +3,14 @@ from tensorflow import keras
 from tensorflow.keras import layers
 import numpy as np
 import matplotlib.pyplot as plt
-from random import randint
 import os
 
 os.system('cls' if os.name == 'nt' else 'clear')
-c_names = ["CatImages", "GuitareImages"]
 class_names = []
 ## data loading
 
 def process_data(vfold_ratio=0.2, max_items_per_class=4000):
-    all_files = ['CatImages.npy', 'GuitarImages.npy']
-
+    all_files = ['data/' + s for s in os.listdir("data")]
     x_data = np.empty([0, 784])
     y_labels = np.empty([0])
 
@@ -48,23 +45,17 @@ def process_data(vfold_ratio=0.2, max_items_per_class=4000):
 
 def doodle_recognition():
     x_train, y_train, x_test, y_test, class_names = process_data()
-    num_classes = len(class_names)
+    num_classes = len(os.listdir("data"))
     image_size = 28
 
-    ## show some data
+    plt.figure(figsize=(10, 10))
 
-
-    # plt.figure(figsize=(10, 10))
-
-    # for i in range(54):
-    #     ax = plt.subplot(9, 6, i + 1)
-    #     plt.imshow(x_train[i].reshape(28, 28))
-    #     plt.title(int(y_train[i]))
-    #     plt.axis("off")
-    # plt.show()
-
-
-
+    for i in range(54):
+        ax = plt.subplot(9, 6, i + 1)
+        plt.imshow(x_train[i].reshape(28, 28))
+        plt.title(int(y_train[i]))
+        plt.axis("off")
+    plt.show()
     ## pre-processing
 
     x_train = x_train.reshape(x_train.shape[0], image_size, image_size, 1).astype('float32')
@@ -76,7 +67,6 @@ def doodle_recognition():
 
     y_train = keras.utils.to_categorical(y_train, num_classes)
     y_test = keras.utils.to_categorical(y_test, num_classes)
-
 
     # Define model
     model = keras.Sequential()
@@ -90,7 +80,7 @@ def doodle_recognition():
     model.add(layers.MaxPooling2D(pool_size =(2,2)))
     model.add(layers.Flatten())
     model.add(layers.Dense(128, activation='relu'))
-    model.add(layers.Dense(2, activation='softmax')) 
+    model.add(layers.Dense(len(os.listdir("data")), activation='softmax')) 
 
     ## Train model
     adam = tf.optimizers.Adam()
@@ -109,15 +99,13 @@ def doodle_recognition():
 # print('Test accuracy: {:0.2f}%'.format(score[1] * 100))
 
 def recognize_img(im, model):
-    # idx = randint(0, len(x_test))
-    # img = x_test[idx]
-    # plt.imshow(im.squeeze())
-    # plt.show()
-
     pred = model.predict(np.expand_dims(im, axis=0))[0]
     ind = (-pred).argsort()[:5]
+    c_names = [s.replace('.npy', '') for s in os.listdir("data")]
     latex = [c_names[x] for x in ind]
-    print(latex)
+    # print(f"I think it's a {latex[0].replace('Images', '')}")
+    # print(f"Other possibilities: {latex[1:]}")
+    return latex[0].replace('Images', '')
 
 if __name__ == "__main__":
     doodle_recognition()
