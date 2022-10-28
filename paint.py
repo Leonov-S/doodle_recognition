@@ -61,7 +61,7 @@ def save(e):
     data.save('test.png')
     guess = recognize_img(resized, model)
     mainguess.set(guess[0])
-    sideguess.set("".join(guess[1:]))
+    sideguess.set("\n".join(guess[1:]))
     loading = False
 
 def activate_paint(e):
@@ -105,6 +105,7 @@ mainguess = StringVar()
 sideguess = StringVar()
 mainguess.set("Draw!")
 sideguess.set("waiting..")
+
 round_rectangle(72.0, 67.0, 1192.0, 907.0, radius=20, fill="#581E92")
 
 a= cv.create_rectangle(
@@ -116,18 +117,9 @@ a= cv.create_rectangle(
     outline="")
 
 mg_label = Label(root, anchor="nw", textvariable = mainguess, bg = '#581E92',fg = 'white', font=("Inter", 25 * -1))
-sg_label = Label(root, anchor="nw", textvariable = sideguess, bg = '#581E92',fg = 'grey', font=("Inter", 25 * -1))
+sg_label = Label(root, anchor="nw", justify=LEFT, textvariable = sideguess, bg = '#581E92',fg = 'grey', font=("Inter", 25 * -1))
 mg_label.place(x = 890, y = 117)
 sg_label.place(x = 890, y = 145)
-
-cv.create_text(
-    1069.0,
-    117.0,
-    anchor="nw",
-    text="32.12%\n32.12%\n32.12%\n32.12%\n32.12%\n32.12%\n32.12%\n32.12%\n32.12%\n32.12%",
-    fill="#FFFFFF",
-    font=("Inter", 25 * -1)
-)
 
 cv.create_text(
     216.0,

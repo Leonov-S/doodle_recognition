@@ -36,9 +36,7 @@ def process_data(vfold_ratio=0.2, max_items_per_class=4000):
     y_labels = np.empty([0])
 
     for idx, file in enumerate(all_files):
-        print(file)
         data = np.load(file)
-        print("YES")
         data = data[0:max_items_per_class, :]
         labels = np.full(data.shape[0], idx)
 
@@ -73,12 +71,12 @@ def doodle_recognition():
 
     plt.figure(figsize=(10, 10))
 
-    for i in range(54):
-        ax = plt.subplot(9, 6, i + 1)
-        plt.imshow(x_train[i].reshape(28, 28))
-        plt.title(int(y_train[i]))
-        plt.axis("off")
-    plt.show()
+    # for i in range(54):
+    #     ax = plt.subplot(9, 6, i + 1)
+    #     plt.imshow(x_train[i].reshape(28, 28))
+    #     plt.title(int(y_train[i]))
+    #     plt.axis("off")
+    # plt.show()
     ## pre-processing
 
     x_train = x_train.reshape(x_train.shape[0], image_size, image_size, 1).astype('float32')
@@ -110,27 +108,23 @@ def doodle_recognition():
     model.compile(loss='categorical_crossentropy',
                 optimizer=adam,
                 metrics=['top_k_categorical_accuracy'])
-    print(model.summary())
+    # print(model.summary())
 
-    model.fit(x = x_train, y = y_train, validation_split=0.1, batch_size = 256, verbose=2, epochs=5)
+    model.fit(x = x_train, y = y_train, validation_split=0.1, batch_size = 256, verbose=2, epochs=3)
     model.save('dr.h5')
     model.save_weights('drWeight.h5')
     return model
 
-## try model
+# ## try model
 # score = model.evaluate(x_test, y_test, verbose=0)
 # print('Test accuracy: {:0.2f}%'.format(score[1] * 100))
 
 def recognize_img(im, model):
     pred = model.predict(np.expand_dims(im, axis=0))[0]
-    print("VECT:", pred)
     ind = (-pred).argsort()[:5]
     c_names = [s.replace('.npy', '') for s in os.listdir("data")]
+
     latex = [c_names[x] for x in ind]
-    # print(f"I think it's a {latex[0].replace('Images', '')}")
-    # print(f"Other possibilities: {latex[1:]}")
-    # return latex[0].replace('Images', '')
-    latex = [*map(lambda x: x.replace('Images', '\n'), latex)]
     return latex
 
 if __name__ == "__main__":
