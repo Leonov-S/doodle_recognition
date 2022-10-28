@@ -129,7 +129,9 @@ def recognize_img(im, model):
     latex = [c_names[x] for x in ind]
     # print(f"I think it's a {latex[0].replace('Images', '')}")
     # print(f"Other possibilities: {latex[1:]}")
-    return latex[0].replace('Images', '')
+    # return latex[0].replace('Images', '')
+    latex = [*map(lambda x: x.replace('Images', '\n'), latex)]
+    return latex
 
 if __name__ == "__main__":
     download_datasets()
