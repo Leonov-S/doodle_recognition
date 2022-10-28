@@ -1,13 +1,34 @@
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
+
 import numpy as np
 import matplotlib.pyplot as plt
+
 import os
+import urllib.request
 
 os.system('cls' if os.name == 'nt' else 'clear')
 class_names = []
 ## data loading
+
+def download_datasets():
+    if (not os.path.exists("data")):
+        os.mkdir("data")
+    f= open("mini_classes.txt","r")
+    classes = f.readlines()
+    f.close()
+    classes = [c.replace('\n','').replace(' ','_') for c in classes]
+    ind = 0
+    for c in classes:
+        c_url = c.replace('_', '%20')
+        print("Downloading " + c + " - [" + str(ind) + " /" + str(len(classes)) + "]")
+        full_url = "https://storage.googleapis.com/quickdraw_dataset/full/numpy_bitmap/" + c_url + ".npy"
+        if (not os.path.exists('data/' + c + ".npy")):
+            urllib.request.urlretrieve(full_url, 'data/' + c + ".npy")
+        ind += 1
+    print("Downloaded " + "[" + str(ind) + " /" + str(len(classes)) + "]")
+    
 
 def process_data(vfold_ratio=0.2, max_items_per_class=4000):
     all_files = ['data/' + s for s in os.listdir("data")]
@@ -15,7 +36,9 @@ def process_data(vfold_ratio=0.2, max_items_per_class=4000):
     y_labels = np.empty([0])
 
     for idx, file in enumerate(all_files):
+        print(file)
         data = np.load(file)
+        print("YES")
         data = data[0:max_items_per_class, :]
         labels = np.full(data.shape[0], idx)
 
@@ -100,6 +123,7 @@ def doodle_recognition():
 
 def recognize_img(im, model):
     pred = model.predict(np.expand_dims(im, axis=0))[0]
+    print("VECT:", pred)
     ind = (-pred).argsort()[:5]
     c_names = [s.replace('.npy', '') for s in os.listdir("data")]
     latex = [c_names[x] for x in ind]
@@ -108,4 +132,5 @@ def recognize_img(im, model):
     return latex[0].replace('Images', '')
 
 if __name__ == "__main__":
+    download_datasets()
     doodle_recognition()
