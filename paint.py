@@ -69,6 +69,12 @@ def activate_paint(e):
     cv.bind('<B1-Motion>', paint)
     lastx, lasty = e.x, e.y
 
+def activate_erase(e):
+    global lastx, lasty
+    cv.bind('<B3-Motion>', erase)
+    lastx, lasty = e.x, e.y
+
+
 def paint(e):
     global lastx, lasty
     x, y = e.x, e.y
@@ -76,6 +82,16 @@ def paint(e):
     if (x > canva_coords['x1'] and x < canva_coords["x2"] and y > canva_coords["y1"] and y < canva_coords["y2"]
         and lastx > canva_coords['x1'] and lastx < canva_coords["x2"] and lasty > canva_coords['y1'] and lasty < canva_coords['y2']):
         cv.create_line((lastx, lasty, x, y), width=20, fill='black', capstyle=ROUND, smooth=TRUE, splinesteps=36)
+    draw.line((lastx - canva_coords["x1"], lasty - canva_coords["y1"], x - canva_coords["x1"], y - canva_coords["y1"]), fill='black', width=40)
+    lastx, lasty = x, y
+
+def erase(e):
+    global lastx, lasty
+    x, y = e.x, e.y
+    
+    if (x > canva_coords['x1'] and x < canva_coords["x2"] and y > canva_coords["y1"] and y < canva_coords["y2"]
+        and lastx > canva_coords['x1'] and lastx < canva_coords["x2"] and lasty > canva_coords['y1'] and lasty < canva_coords['y2']):
+        cv.create_line((lastx, lasty, x, y), width=20, fill='white', capstyle=ROUND, smooth=TRUE, splinesteps=36)
     draw.line((lastx - canva_coords["x1"], lasty - canva_coords["y1"], x - canva_coords["x1"], y - canva_coords["y1"]), fill='black', width=40)
     lastx, lasty = x, y
 
@@ -131,6 +147,7 @@ cv.create_text(
 )
 
 cv.bind('<1>', activate_paint)
+cv.bind("<Button-3>", activate_erase)
 cv.bind('<ButtonRelease-1>', save)
 root.bind('<KeyPress>', clear)
 
