@@ -134,7 +134,7 @@ a= cv.create_rectangle(
 
 mg_label = Label(root, anchor="nw", textvariable = mainguess, bg = '#581E92',fg = 'white', font=("Inter", 25 * -1))
 sg_label = Label(root, anchor="nw", justify=LEFT, textvariable = sideguess, bg = '#581E92',fg = 'grey', font=("Inter", 25 * -1))
-mg_label.place(x = 890, y = 117)
+mg_label.place(x = 890, y = 100)
 sg_label.place(x = 890, y = 145)
 
 cv.create_text(

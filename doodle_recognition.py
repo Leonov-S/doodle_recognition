@@ -121,7 +121,7 @@ def doodle_recognition():
 
 def recognize_img(im, model):
     pred = model.predict(np.expand_dims(im, axis=0))[0]
-    ind = (-pred).argsort()[:5]
+    ind = (-pred).argsort()
     c_names = [s.replace('.npy', '') for s in os.listdir("data")]
 
     latex = [c_names[x] for x in ind]
